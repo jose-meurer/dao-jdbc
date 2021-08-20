@@ -44,7 +44,7 @@ public class SellerDaoJDBC implements SellerDao{
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*, department.Name as DepName " // Pesquisa todas as categorias da tabela seller e a coluna name da coluna department(apelidando ele de DepName)(Operacao: Projecao)
+					"SELECT seller.*, department.Name as DepName " // Pesquisa todas as categorias da tabela seller e a coluna name da tabela department(apelidando ele de DepName)(Operacao: Projecao)
 					+ "FROM seller " // Pesquisa na tabela seller
 					+ "INNER JOIN department " // Junta as duas tabelas (Operacao: Produto cartesiano)
 					+ "ON seller.DepartmentId = department.Id " // Filtra apenas os elementos onde a chave estrangeira deparmentID seja igual ao ID da tabela deparment
@@ -53,29 +53,36 @@ public class SellerDaoJDBC implements SellerDao{
 			st.setInt(1, id);
 			rs = st.executeQuery();
 			if (rs.next()) {
-				Department dep = new Department();
-				dep.setId(rs.getInt("DepartmentId"));
-				dep.setName(rs.getString("DepName"));
-				
-				Seller seller = new Seller();
-				seller.setId(rs.getInt("Id"));
-				seller.setName(rs.getString("Name"));
-				seller.setEmail(rs.getString("Email"));
-				seller.setBirthDate(rs.getDate("BirthDate"));
-				seller.setBaseSalary(rs.getDouble("BaseSalary"));
-				seller.setDepartment(dep);
-				
+				Department dep = instantiateDepartment(rs);
+				Seller seller =  instantiateSeller(rs, dep);
 				return seller;
 			}
 			return null;
-		}
-		catch (SQLException e) {
+			
+		}catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}
-		finally {
+		}finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
 		}
+	}
+
+	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
+		Seller seller = new Seller();
+		seller.setId(rs.getInt("Id"));
+		seller.setName(rs.getString("Name"));
+		seller.setEmail(rs.getString("Email"));
+		seller.setBirthDate(rs.getTimestamp("BirthDate"));  //getDate retorna apernas dd/mm/yyyy, para reuperar a hora, precisa usar getTimestramp
+		seller.setBaseSalary(rs.getDouble("BaseSalary"));
+		seller.setDepartment(dep);
+		return seller;
+	}
+
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId"));
+		dep.setName(rs.getString("DepName"));
+		return dep;
 	}
 
 	@Override
