@@ -1,7 +1,6 @@
 package model.dao.impl;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping;
 
 import db.DB;
 import db.DbException;
@@ -35,7 +32,7 @@ public class SellerDaoJDBC implements SellerDao{
 				+ "VALUES "
 				+ "(?, ?, ?, ?, ?)";
 		try {
-			conn.setAutoCommit(false);
+			conn.setAutoCommit(false); //Testando desativar o commit auto e implementando o rollback caso der errado o comando
 			
 			PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			
@@ -52,7 +49,7 @@ public class SellerDaoJDBC implements SellerDao{
 			if (rowsAffected > 0) {
 				try (ResultSet rs = st.getGeneratedKeys()){
 					if (rs.next()) {
-						int id = rs.getInt(1);
+						int id = rs.getInt(1); //Captura a coluna apos o comando SQL, neste caso, 1 = RETURN_GENERATED_KEYS
 						obj.setId(id);
 					}
 				}
@@ -74,7 +71,25 @@ public class SellerDaoJDBC implements SellerDao{
 
 	@Override
 	public void update(Seller obj) {
-		// TODO Auto-generated method stub
+		// Implementei de maneira diferente
+		String sql = "UPDATE seller "
+				+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
+				+ "WHERE Id = ?";
+		try { 
+			PreparedStatement st = conn.prepareStatement(sql);
+			
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			st.setInt(6,obj.getId());
+			
+			st.executeUpdate();
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -118,7 +133,7 @@ public class SellerDaoJDBC implements SellerDao{
 		seller.setId(rs.getInt("Id"));
 		seller.setName(rs.getString("Name"));
 		seller.setEmail(rs.getString("Email"));
-		seller.setBirthDate(rs.getTimestamp("BirthDate"));  //getDate retorna apernas dd/mm/yyyy, para reuperar a hora, precisa usar getTimestramp
+		seller.setBirthDate(rs.getTimestamp("BirthDate"));  //getDate retorna apenas dd/mm/yyyy, para recuperar com a hora, precisa usar getTimestramp
 		seller.setBaseSalary(rs.getDouble("BaseSalary"));
 		seller.setDepartment(dep);
 		return seller;
