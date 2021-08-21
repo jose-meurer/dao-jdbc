@@ -1,13 +1,17 @@
 package model.dao.impl;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping;
 
 import db.DB;
 import db.DbException;
@@ -25,14 +29,52 @@ public class SellerDaoJDBC implements SellerDao{
 	
 	@Override
 	public void insert(Seller obj) {
-		// TODO Auto-generated method stub
-		
+		// Implementei de maneira diferente
+		String sql = "INSERT INTO seller "
+				+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+				+ "VALUES "
+				+ "(?, ?, ?, ?, ?)";
+		try {
+			conn.setAutoCommit(false);
+			
+			PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			
+			int rowsAffected = st.executeUpdate();
+			
+			conn.commit();
+			
+			if (rowsAffected > 0) {
+				try (ResultSet rs = st.getGeneratedKeys()){
+					if (rs.next()) {
+						int id = rs.getInt(1);
+						obj.setId(id);
+					}
+				}
+			}
+			else {
+				throw new DbException("Unexpected error! No rows affected");
+			}
+			
+		}catch (SQLException e) {
+			try{
+				conn.rollback();
+			throw new DbException("Insert data rolled back! Cause by: " + e.getMessage());
+			}
+			catch (SQLException e1) {
+				throw new DbException("Error trying to rollback! Caused by: " + e1.getMessage());
+			}
+		}
 	}
 
 	@Override
 	public void update(Seller obj) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
