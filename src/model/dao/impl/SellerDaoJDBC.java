@@ -42,7 +42,7 @@ public class SellerDaoJDBC implements SellerDao{
 			st.setDouble(4, obj.getBaseSalary());
 			st.setInt(5, obj.getDepartment().getId());
 			
-			int rowsAffected = st.executeUpdate();
+			int rowsAffected = st.executeUpdate(); //Retorna a quantidade de linhas alteradas
 			
 			conn.commit();
 			
@@ -85,7 +85,7 @@ public class SellerDaoJDBC implements SellerDao{
 			st.setInt(5, obj.getDepartment().getId());
 			st.setInt(6,obj.getId());
 			
-			st.executeUpdate();
+			st.execute(); //execute nao retorna nada
 		}
 		catch (SQLException e) {
 			throw new DbException(e.getMessage());
@@ -94,8 +94,19 @@ public class SellerDaoJDBC implements SellerDao{
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
-		
+		// Implementei de maneira diferente
+		String sql = "DELETE FROM seller "
+				+ "WHERE id = ?";
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			
+			st.setInt(1, id);
+			
+			st.execute();
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -111,7 +122,7 @@ public class SellerDaoJDBC implements SellerDao{
 					+ "WHERE seller.id = ?"); // Filtra a tabela onde o seller.id seja igual ao valor informado
 			
 			st.setInt(1, id);
-			rs = st.executeQuery();
+			rs = st.executeQuery(); // Retorna a tabela com os valores(ResultSet)
 			
 			if (rs.next()) {
 				Department dep = instantiateDepartment(rs);
