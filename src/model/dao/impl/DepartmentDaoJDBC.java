@@ -8,8 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping;
-
 import db.DbException;
 import model.dao.DepartmentDao;
 import model.entities.Department;
@@ -24,7 +22,7 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 	
 	@Override
 	public void insert(Department obj) {
-		String sql = "INSERT INTO department "
+		String sql = "INSERT INTO department " // Insere na(INTO) tabela department
 				+ "(Name) "
 				+ "VALUES "
 				+ "(?)";
@@ -82,8 +80,18 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
-		
+		String sql = "DELETE FROM department "
+				+ "WHERE Id = ?";
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			
+			st.setInt(1, id);
+			
+			st.execute();
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
 	}
 
 	@Override
