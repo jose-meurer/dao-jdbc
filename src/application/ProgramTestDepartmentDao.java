@@ -1,5 +1,7 @@
 package application;
 
+import java.util.List;
+
 import model.dao.DaoFactory;
 import model.dao.DepartmentDao;
 import model.entities.Department;
@@ -15,7 +17,10 @@ public class ProgramTestDepartmentDao {
 		System.out.println(department);
 		
 		System.out.println("\n=== TEST 2: department findAll ===");
+		List<Department> list = departmentDao.findAll();
+		list.forEach(System.out::println);
 		
+		System.out.println("\n=== TEST 3: department insert ===");
 	}
-
+	
 }
