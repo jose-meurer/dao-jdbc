@@ -32,7 +32,7 @@ public class ProgramTestDepartmentDao {
 		System.out.println("Update completed!");
 		
 		System.out.println("\n=== TEST 5: department delete ===");
-		departmentDao.deleteById(6);
+		departmentDao.deleteById(9);
 		System.out.println("Delete completed!");
 	}
 	

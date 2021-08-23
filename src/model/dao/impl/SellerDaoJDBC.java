@@ -31,11 +31,9 @@ public class SellerDaoJDBC implements SellerDao{
 				+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
 				+ "VALUES "
 				+ "(?, ?, ?, ?, ?)";
-		try {
+		try (PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			conn.setAutoCommit(false); //Testando desativar o commit auto e implementando o rollback caso der errado o comando
-			
-			PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			
+	
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
 			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
@@ -75,9 +73,8 @@ public class SellerDaoJDBC implements SellerDao{
 		String sql = "UPDATE seller "
 				+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
 				+ "WHERE Id = ?";
-		try { 
-			PreparedStatement st = conn.prepareStatement(sql);
-			
+		try (PreparedStatement st = conn.prepareStatement(sql)) { 
+	
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
 			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
@@ -97,8 +94,7 @@ public class SellerDaoJDBC implements SellerDao{
 		// Implementei de maneira diferente
 		String sql = "DELETE FROM seller "
 				+ "WHERE Id = ?";
-		try {
-			PreparedStatement st = conn.prepareStatement(sql);
+		try (PreparedStatement st = conn.prepareStatement(sql)){
 			
 			st.setInt(1, id);
 			
@@ -111,6 +107,7 @@ public class SellerDaoJDBC implements SellerDao{
 
 	@Override
 	public Seller findById(Integer id) {
+		//Implementacao do professor
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
@@ -164,9 +161,8 @@ public class SellerDaoJDBC implements SellerDao{
 				+ "FROM seller INNER JOIN department "
 				+ "ON seller.DepartmentId = department.Id "
 				+ "ORDER BY Name asc";
-		try {
-			PreparedStatement st = conn.prepareStatement(sql);
-			
+		try (PreparedStatement st = conn.prepareStatement(sql)) {
+
 			try (ResultSet rs = st.executeQuery()) {
 				List<Seller> list = new ArrayList<>();
 				Map<Integer, Department> map = new HashMap<>();

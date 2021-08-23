@@ -26,11 +26,9 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 				+ "(Name) "
 				+ "VALUES "
 				+ "(?)";
-		try {
+		try (PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
 			conn.setAutoCommit(false);
-			
-			PreparedStatement st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			
+
 			st.setString(1, obj.getName());
 			
 			int rowsAffected = st.executeUpdate(); //Retorna quantidade de linhas alteradas
@@ -65,9 +63,8 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 		String sql = "UPDATE department "
 				+ "SET Name = ? "
 				+ "WHERE Id = ?";
-		try {
-			PreparedStatement st = conn.prepareStatement(sql);
-			
+		try (PreparedStatement st = conn.prepareStatement(sql)) {
+	
 			st.setString(1, obj.getName());
 			st.setInt(2, obj.getId());
 			
@@ -82,9 +79,8 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 	public void deleteById(Integer id) {
 		String sql = "DELETE FROM department "
 				+ "WHERE Id = ?";
-		try {
-			PreparedStatement st = conn.prepareStatement(sql);
-			
+		try (PreparedStatement st = conn.prepareStatement(sql)){
+	
 			st.setInt(1, id);
 			
 			st.execute();
@@ -99,8 +95,7 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 		String sql = "SELECT department. * "
 				+ "FROM department "
 				+ "WHERE department.Id = ?";
-		try {
-			PreparedStatement st = conn.prepareStatement(sql);
+		try (PreparedStatement st = conn.prepareStatement(sql)){
 			
 			st.setInt(1, id);
 			
@@ -129,9 +124,8 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 		String sql = "SELECT department.* "
 				+ "FROM department "
 				+ "ORDER BY Name asc";
-		try {
-			PreparedStatement st = conn.prepareStatement(sql);
-			
+		try (PreparedStatement st = conn.prepareStatement(sql)) {
+	
 			try (ResultSet rs = st.executeQuery()) {
 				List<Department> list = new ArrayList<>();
 				
